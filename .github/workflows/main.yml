@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 375px;
+            height: 812px;
+            background: #1c1c1e;
+            border-radius: 40px;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px 10px;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .time {
+            color: #ffffff;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 5px;
+            color: #ffffff;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            padding: 0 25px 20px;
+            position: relative;
+        }
+
+        .back-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .app-title {
+            flex: 1;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .menu-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* SCREEN MANAGEMENT */
+        .screen {
+            display: none;
+            height: calc(100% - 100px);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .screen-content {
+            padding: 0 25px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* MENU SCREEN */
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .app-logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #32d74b, #ffd60a, #ff3b30);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #8e8e93;
+            margin-bottom: 20px;
+        }
+
+        .yellow-pill {
+            background: #ffd60a;
+            color: #000000;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .game-modes {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .mode-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-card.local {
+            border-left: 4px solid #32d74b;
+        }
+
+        .mode-card.ai {
+            border-left: 4px solid #007aff;
+        }
+
+        .mode-card.online {
+            border-left: 4px solid #ff3b30;
+        }
+
+        .mode-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .mode-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .mode-description {
+            font-size: 14px;
+            color: #8e8e93;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .mode-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .feature-tag {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .start-button {
+            background: #32d74b;
+            color: #000000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .start-button:hover {
+            background: #28cd41;
+            transform: translateY(-1px);
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+
+        .stat-item {
+            color: #ffffff;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #32d74b;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .settings-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 51px;
+            height: 31px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(120, 120, 128, 0.32);
+            transition: .4s;
+            border-radius: 31px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 27px;
+            width: 27px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #32d74b;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* GAME SCREEN */
+        .difficulty-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .difficulty-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .difficulty-select option {
+            background: #1c1c1e;
+            color: #ffffff;
+        }
+
+        .multiplayer-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .connection-status {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-disconnected {
+            background: rgba(255, 59, 48, 0.2);
+            color: #ff3b30;
+            border: 1px solid rgba(255, 59, 48, 0.3);
+        }
+
+        .status-connected {
+            background: rgba(50, 215, 75, 0.2);
+            color: #32d74b;
+            border: 1px solid rgba(50, 215, 75, 0.3);
+        }
+
+        .status-waiting {
+            background: rgba(255, 214, 10, 0.2);
+            color: #ffd60a;
+            border: 1px solid rgba(255, 214, 10, 0.3);
+        }
+
+        .room-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .room-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .room-input input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .room-input input::placeholder {
+            color: #8e8e93;
+        }
+
+        .room-code-display {
+            background: rgba(255, 214, 10, 0.2);
+            border: 1px solid rgba(255, 214, 10, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #ffd60a;
+            margin: 15px 0;
+        }
+
+        .primary-button {
+            background: #32d74b;
+            color: #000000;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+
+        .primary-button:hover {
+            background: #28cd41;
+            transform: translateY(-2px);
+        }
+
+        .secondary-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 14px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            flex: 1;
+        }
+
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .score-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .score-item {
+            color: #ffffff;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #8e8e93;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #32d74b;
+        }
+
+        .game-status {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .current-player {
+            color: #32d74b;
+            font-weight: 700;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 15px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .cell:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .cell.x {
+            color: #ff3b30;
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        .cell.o {
+            color: #32d74b;
+            background: rgba(50, 215, 75, 0.1);
+        }
+
+        .cell.winning {
+            animation: winner 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes winner {
+            from {
+                background: rgba(255, 214, 10, 0.3);
+                transform: scale(1);
+            }
+            to {
+                background: rgba(255, 214, 10, 0.6);
+                transform: scale(1.1);
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #1c1c1e;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: modalSlide 0.4s ease-out;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            color: #8e8e93;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .success-checkmark {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #32d74b;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #000000;
+            animation: checkmarkPop 0.6s ease-out;
+        }
+
+        @keyframes checkmarkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: #32d74b;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 4s linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-20px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .phone-container {
+                border-radius: 0;
+                height: 100vh;
+                max-width: none;
+                width: 100%;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .phone-container {
+                max-width: 400px;
+                height: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons">
+                <span>●●●</span>
+                <span>📶</span>
+                <span>📱</span>
+                <span>🔋</span>
+            </div>
+        </div>
+
+        <!-- App Header -->
+        <div class="app-header">
+            <button class="back-button" id="back-button" onclick="goToMenu()">←</button>
+            <div class="app-title" id="app-title">Tic Tac Toe Pro</div>
+            <button class="menu-button" onclick="toggleSettings()">⋯</button>
+        </div>
+
+        <!-- MENU SCREEN -->
+        <div class="screen active" id="menu-screen">
+            <div class="screen-content">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <div class="app-logo">🎮</div>
+                    <div class="yellow-pill">PRO VERSION</div>
+                    <h1 class="welcome-title">Tic Tac Toe Pro</h1>
+                    <p class="welcome-subtitle">Choose your game mode and start playing!</p>
+                </div>
+
+                <!-- Game Modes -->
+                <div class="game-modes">
+                    <h2 class="section-title">Game Modes</h2>
+                    
+                    <div class="mode-card local" onclick="selectMode('human')">
+                        <div class="mode-icon">👥</div>
+                        <div class="mode-title">Local Play</div>
+                        <div class="mode-description">Play with a friend on the same device. Take turns and challenge each other!</div>
+                        <div class="mode-features">
+                            <span class="feature-tag">2 Players</span>
+                            <span class="feature-tag">Same Device</span>
+                            <span class="feature-tag">Instant Fun</span>
+                        </div>
+                        <button class="start-button">Start Local Game</button>
+                    </div>
+
+                    <div class="mode-card ai" onclick="selectMode('ai')">
+                        <div class="mode-icon">🤖</div>
+                        <div class="mode-title">AI Challenge</div>
+                        <div class="mode-description">Test your skills against our intelligent AI. Choose from Easy, Medium, or Impossible!</div>
+                        <div class="mode-features">
+                            <span class="feature-tag">3 Difficulties</span>
+                            <span class="feature-tag">Smart AI</span>
+                            <span class="feature-tag">Solo Play</span>
+                        </div>
+                        <button class="start-button">Challenge AI</button>
+                    </div>
+
+                    <div class="mode-card online" onclick="selectMode('online')">
+                        <div class="mode-icon">🌐</div>
+                        <div class="mode-title">Online Multiplayer</div>
+                        <div class="mode-description">Play with friends anywhere in the world! Create or join a room with a simple code.</div>
+                        <div class="mode-features">
+                            <span class="feature-tag">Global Play</span>
+                            <span class="feature-tag">Room Codes</span>
+                            <span class="feature-tag">Real-time</span>
+                        </div>
+                        <button class="start-button">Play Online</button>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="stats-section">
+                    <h2 class="section-title">Your Stats</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-wins">0</div>
+                            <div class="stat-label">Total Wins</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-games">0</div>
+                            <div class="stat-label">Games Played</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="win-rate">0%</div>
+                            <div class="stat-label">Win Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Preview -->
+                <div class="settings-preview">
+                    <h2 class="section-title">Settings</h2>
+                    <div class="settings-item">
+                        <div class="settings-label">Sound Effects</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="menu-sound-toggle" checked onchange="updateSetting('sounds', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-label">Animations</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="menu-animation-toggle" checked onchange="updateSetting('animations', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-label">Particle Effects</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="menu-particles-toggle" checked onchange="updateSetting('particles', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div class="screen" id="game-screen">
+            <div class="screen-content">
+                <!-- Difficulty Section (for AI mode) -->
+                <div class="difficulty-section" id="difficulty-panel">
+                    <select class="difficulty-select" id="difficulty-select">
+                        <option value="easy">Easy Mode - Beginner Friendly</option>
+                        <option value="medium">Medium Mode - Balanced Challenge</option>
+                        <option value="impossible">Impossible Mode - Unbeatable AI</option>
+                    </select>
+                </div>
+
+                <!-- Multiplayer Section (for online mode) -->
+                <div class="multiplayer-section" id="multiplayer-section">
+                    <div class="connection-status status-disconnected" id="connection-status">
+                        Ready to connect
+                    </div>
+                    
+                    <div id="room-create-section">
+                        <button class="primary-button" onclick="createRoom()">Create Room</button>
+                        <div class="room-input" style="margin-top: 15px;">
+                            <input type="text" id="room-code-input" placeholder="Enter room code">
+                            <button class="secondary-button" onclick="joinRoom()">Join</button>
+                        </div>
+                    </div>
+
+                    <div id="room-info" style="display: none;">
+                        <div style="color: #8e8e93; margin-bottom: 10px;">Room Code</div>
+                        <div class="room-code-display" id="room-code-display"></div>
+                        <div style="color: #8e8e93; margin-bottom: 20px;">Share this code with your friend</div>
+                        <button class="secondary-button" onclick="leaveRoom()">Leave Room</button>
+                    </div>
+                </div>
+
+                <!-- Score Section -->
+                <div class="score-section">
+                    <div class="score-grid">
+                        <div class="score-item">
+                            <div class="score-label" id="player1-label">Player X</div>
+                            <div class="score-value" id="score-x">0</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">Draws</div>
+                            <div class="score-value" id="score-draws">0</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label" id="player2-label">Player O</div>
+                            <div class="score-value" id="score-o">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Status -->
+                <div class="game-status" id="game-status">
+                    <span class="current-player">Player X</span>'s turn
+                </div>
+
+                <!-- Game Board -->
+                <div class="game-board" id="game-board">
+                    <button class="cell" onclick="makeMove(0)"></button>
+                    <button class="cell" onclick="makeMove(1)"></button>
+                    <button class="cell" onclick="makeMove(2)"></button>
+                    <button class="cell" onclick="makeMove(3)"></button>
+                    <button class="cell" onclick="makeMove(4)"></button>
+                    <button class="cell" onclick="makeMove(5)"></button>
+                    <button class="cell" onclick="makeMove(6)"></button>
+                    <button class="cell" onclick="makeMove(7)"></button>
+                    <button class="cell" onclick="makeMove(8)"></button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="secondary-button" onclick="resetGame()">New Game</button>
+                    <button class="secondary-button" onclick="resetScore()">Reset Score</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="game-modal">
+        <div class="modal-content">
+            <div class="success-checkmark" id="modal-icon">✓</div>
+            <h2 class="modal-title" id="modal-title">Game Over!</h2>
+            <p class="modal-message" id="modal-message">Player X Wins!</p>
+            <div style="display: flex; gap: 12px;">
+                <button class="primary-button" onclick="closeModal(); resetGame();">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            board: ['', '', '', '', '', '', '', '', ''],
+            currentPlayer: 'X',
+            gameMode: 'human',
+            difficulty: 'medium',
+            gameActive: true,
+            scores: { X: 0, O: 0, draws: 0 },
+            totalGames: 0,
+            settings: {
+                sounds: true,
+                animations: true,
+                particles: true
+            },
+            online: {
+                connected: false,
+                isHost: false,
+                roomCode: '',
+                playerSymbol: 'X',
+                opponentConnected: false,
+                ws: null
+            }
+        };
+
+        // Winning combinations
+        const winningCombos = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6] // Diagonals
+        ];
+
+        // Sound effects
+        const sounds = {
+            move: () => playSound(440, 0.1, 'sine'),
+            win: () => playSound(880, 0.3, 'sine'),
+            draw: () => playSound(220, 0.3, 'square'),
+            click: () => playSound(600, 0.1, 'triangle'),
+            connect: () => playSound(800, 0.2, 'sine'),
+            disconnect: () => playSound(300, 0.2, 'square')
+        };
+
+        // Screen management
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            
+            // Update header
+            const backButton = document.getElementById('back-button');
+            const appTitle = document.getElementById('app-title');
+            
+            if (screenId === 'menu-screen') {
+                backButton.style.opacity = '0';
+                backButton.style.pointerEvents = 'none';
+                appTitle.textContent = 'Tic Tac Toe Pro';
+            } else {
+                backButton.style.opacity = '1';
+                backButton.style.pointerEvents = 'auto';
+                const modeNames = {
+                    'human': 'Local Play',
+                    'ai': 'AI Challenge',
+                    'online': 'Online Game'
+                };
+                appTitle.textContent = modeNames[gameState.gameMode] || 'Game';
+            }
+        }
+
+        function goToMenu() {
+            // Leave online room if connected
+            if (gameState.online.connected) {
+                leaveRoom();
+            }
+            
+            resetGame();
+            showScreen('menu-screen');
+            playClickSound();
+        }
+
+        function selectMode(mode) {
+            gameState.gameMode = mode;
+            
+            // Show/hide relevant sections
+            const difficultyPanel = document.getElementById('difficulty-panel');
+            const multiplayerSection = document.getElementById('multiplayer-section');
+            
+            if (mode === 'ai') {
+                difficultyPanel.style.display = 'block';
+                multiplayerSection.style.display = 'none';
+            } else if (mode === 'online') {
+                difficultyPanel.style.display = 'none';
+                multiplayerSection.style.display = 'block';
+            } else {
+                difficultyPanel.style.display = 'none';
+                multiplayerSection.style.display = 'none';
+            }
+            
+            updatePlayerLabels();
+            resetGame();
+            showScreen('game-screen');
+            playClickSound();
+        }
+
+        // Simulated WebSocket for demo
+        class MockWebSocket {
+            constructor() {
+                this.rooms = new Map();
+                this.connections = new Map();
+            }
+
+            createRoom() {
+                const roomCode = this.generateRoomCode();
+                this.rooms.set(roomCode, {
+                    players: [],
+                    board: ['', '', '', '', '', '', '', '', ''],
+                    currentPlayer: 'X',
+                    gameActive: true
+                });
+                return roomCode;
+            }
+
+            joinRoom(roomCode, callback) {
+                const room = this.rooms.get(roomCode);
+                if (!room) return false;
+                
+                if (room.players.length >= 2) return false;
+                
+                const playerSymbol = room.players.length === 0 ? 'X' : 'O';
+                room.players.push({ callback, symbol: playerSymbol });
+                this.connections.set(callback, { roomCode, playerSymbol });
+                
+                room.players.forEach(player => {
+                    player.callback({
+                        type: 'playerJoined',
+                        playersCount: room.players.length,
+                        playerSymbol: player.symbol,
+                        gameState: room
+                    });
+                });
+                
+                return true;
+            }
+
+            makeMove(callback, index) {
+                const connection = this.connections.get(callback);
+                if (!connection) return false;
+                
+                const room = this.rooms.get(connection.roomCode);
+                if (!room || !room.gameActive) return false;
+                
+                if (room.currentPlayer !== connection.playerSymbol) return false;
+                if (room.board[index] !== '') return false;
+                
+                room.board[index] = connection.playerSymbol;
+                room.currentPlayer = room.currentPlayer === 'X' ? 'O' : 'X';
+                
+                const winResult = this.checkWin(room.board);
+                if (winResult.winner || this.checkDraw(room.board)) {
+                    room.gameActive = false;
+                }
+                
+                room.players.forEach(player => {
+                    player.callback({
+                        type: 'move',
+                        index,
+                        player: connection.playerSymbol,
+                        board: room.board,
+                        currentPlayer: room.currentPlayer,
+                        gameActive: room.gameActive,
+                        winner: winResult.winner,
+                        winningCombo: winResult.combo
+                    });
+                });
+                
+                return true;
+            }
+
+            resetGame(callback) {
+                const connection = this.connections.get(callback);
+                if (!connection) return false;
+                
+                const room = this.rooms.get(connection.roomCode);
+                if (!room) return false;
+                
+                room.board = ['', '', '', '', '', '', '', '', ''];
+                room.currentPlayer = 'X';
+                room.gameActive = true;
+                
+                room.players.forEach(player => {
+                    player.callback({
+                        type: 'gameReset',
+                        board: room.board,
+                        currentPlayer: room.currentPlayer,
+                        gameActive: room.gameActive
+                    });
+                });
+                
+                return true;
+            }
+
+            leaveRoom(callback) {
+                const connection = this.connections.get(callback);
+                if (!connection) return false;
+                
+                const room = this.rooms.get(connection.roomCode);
+                if (room) {
+                    room.players = room.players.filter(p => p.callback !== callback);
+                    
+                    room.players.forEach(player => {
+                        player.callback({
+                            type: 'playerLeft',
+                            playersCount: room.players.length
+                        });
+                    });
+                    
+                    if (room.players.length === 0) {
+                        this.rooms.delete(connection.roomCode);
+                    }
+                }
+                
+                this.connections.delete(callback);
+                return true;
+            }
+
+            generateRoomCode() {
+                return Math.random().toString(36).substring(2, 8).toUpperCase();
+            }
+
+            checkWin(board) {
+                for (let combo of winningCombos) {
+                    const [a, b, c] = combo;
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                        return { winner: board[a], combo };
+                    }
+                }
+                return { winner: null, combo: null };
+            }
+
+            checkDraw(board) {
+                return board.every(cell => cell !== '');
+            }
+        }
+
+        const mockWS = new MockWebSocket();
+
+        // Initialize game
+        function init() {
+            loadGameState();
+            updateScoreDisplay();
+            updateStatsDisplay();
+            updateTime();
+            setInterval(updateTime, 1000);
+            showScreen('menu-screen');
+            if (gameState.settings.particles) {
+                createParticles();
+                setInterval(createParticles, 4000);
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.querySelector('.time').textContent = timeString;
+        }
+
+        function updateStatsDisplay() {
+            const totalWins = gameState.scores.X + gameState.scores.O;
+            const totalGames = gameState.totalGames;
+            const winRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
+            
+            document.getElementById('total-wins').textContent = totalWins;
+            document.getElementById('total-games').textContent = totalGames;
+            document.getElementById('win-rate').textContent = winRate + '%';
+        }
+
+        // Online multiplayer functions
+        function createRoom() {
+            const roomCode = mockWS.createRoom();
+            gameState.online.roomCode = roomCode;
+            gameState.online.isHost = true;
+            
+            const success = mockWS.joinRoom(roomCode, handleOnlineMessage);
+            if (success) {
+                updateConnectionStatus('waiting', 'Waiting for opponent...');
+                document.getElementById('room-create-section').style.display = 'none';
+                document.getElementById('room-info').style.display = 'block';
+                document.getElementById('room-code-display').textContent = roomCode;
+                if (gameState.settings.sounds) sounds.connect();
+            }
+        }
+
+        function joinRoom() {
+            const roomCodeInput = document.getElementById('room-code-input');
+            const roomCode = roomCodeInput.value.trim().toUpperCase();
+            
+            if (!roomCode) {
+                showModal('Invalid Code', 'Please enter a valid room code.', '❌');
+                return;
+            }
+            
+            const success = mockWS.joinRoom(roomCode, handleOnlineMessage);
+            if (success) {
+                gameState.online.roomCode = roomCode;
+                gameState.online.isHost = false;
+                roomCodeInput.value = '';
+                document.getElementById('room-create-section').style.display = 'none';
+                document.getElementById('room-info').style.display = 'block';
+                document.getElementById('room-code-display').textContent = roomCode;
+                if (gameState.settings.sounds) sounds.connect();
+            } else {
+                showModal('Connection Failed', 'Could not join room. Room may be full or not exist.', '❌');
+            }
+        }
+
+        function leaveRoom() {
+            if (gameState.online.connected) {
+                mockWS.leaveRoom(handleOnlineMessage);
+                if (gameState.settings.sounds) sounds.disconnect();
+            }
+            
+            gameState.online.connected = false;
+            gameState.online.opponentConnected = false;
+            gameState.online.roomCode = '';
+            gameState.online.playerSymbol = 'X';
+            
+            updateConnectionStatus('disconnected', 'Ready to connect');
+            document.getElementById('room-create-section').style.display = 'block';
+            document.getElementById('room-info').style.display = 'none';
+            resetGame();
+        }
+
+        function handleOnlineMessage(message) {
+            switch (message.type) {
+                case 'playerJoined':
+                    gameState.online.connected = true;
+                    gameState.online.playerSymbol = message.playerSymbol;
+                    gameState.online.opponentConnected = message.playersCount === 2;
+                    
+                    if (message.playersCount === 2) {
+                        updateConnectionStatus('connected', `Connected as Player ${message.playerSymbol}`);
+                        updatePlayerLabels();
+                    } else {
+                        updateConnectionStatus('waiting', 'Waiting for opponent...');
+                    }
+                    break;
+                    
+                case 'playerLeft':
+                    gameState.online.opponentConnected = false;
+                    updateConnectionStatus('waiting', 'Opponent disconnected');
+                    resetGame();
+                    break;
+                    
+                case 'move':
+                    gameState.board = message.board;
+                    gameState.currentPlayer = message.currentPlayer;
+                    gameState.gameActive = message.gameActive;
+                    
+                    updateBoard();
+                    updateStatus();
+                    
+                    if (message.winner) {
+                        if (message.winningCombo) {
+                            highlightWinningCells(message.winningCombo);
+                        }
+                        handleOnlineGameEnd('win', message.winner);
+                    } else if (!message.gameActive) {
+                        handleOnlineGameEnd('draw');
+                    }
+                    
+                    if (gameState.settings.sounds) sounds.move();
+                    break;
+                    
+                case 'gameReset':
+                    gameState.board = message.board;
+                    gameState.currentPlayer = message.currentPlayer;
+                    gameState.gameActive = message.gameActive;
+                    
+                    document.querySelectorAll('.cell').forEach(cell => {
+                        cell.textContent = '';
+                        cell.className = 'cell';
+                    });
+                    
+                    updateStatus();
+                    break;
+            }
+        }
+
+        function updateConnectionStatus(status, message) {
+            const statusElement = document.getElementById('connection-status');
+            statusElement.className = `connection-status status-${status}`;
+            statusElement.textContent = message;
+        }
+
+        function updatePlayerLabels() {
+            if (gameState.gameMode === 'online' && gameState.online.connected) {
+                document.getElementById('player1-label').textContent = 
+                    gameState.online.playerSymbol === 'X' ? 'You (X)' : 'Opponent (X)';
+                document.getElementById('player2-label').textContent = 
+                    gameState.online.playerSymbol === 'O' ? 'You (O)' : 'Opponent (O)';
+            } else if (gameState.gameMode === 'ai') {
+                document.getElementById('player1-label').textContent = 'You (X)';
+                document.getElementById('player2-label').textContent = 'AI (O)';
+            } else {
+                document.getElementById('player1-label').textContent = 'Player X';
+                document.getElementById('player2-label').textContent = 'Player O';
+            }
+        }
+
+        // Make a move
+        function makeMove(index) {
+            if (!gameState.gameActive || gameState.board[index] !== '') return;
+            
+            // Online mode validation
+            if (gameState.gameMode === 'online') {
+                if (!gameState.online.connected || !gameState.online.opponentConnected) return;
+                if (gameState.currentPlayer !== gameState.online.playerSymbol) return;
+                
+                const success = mockWS.makeMove(handleOnlineMessage, index);
+                if (!success) return;
+                return;
+            }
+            
+            // Local game logic
+            gameState.board[index] = gameState.currentPlayer;
+            updateCell(index);
+            
+            if (gameState.settings.sounds) sounds.move();
+            
+            if (checkWin()) {
+                handleGameEnd('win');
+                return;
+            }
+            
+            if (checkDraw()) {
+                handleGameEnd('draw');
+                return;
+            }
+            
+            gameState.currentPlayer = gameState.currentPlayer === 'X' ? 'O' : 'X';
+            updateStatus();
+            
+            // AI move
+            if (gameState.gameMode === 'ai' && gameState.currentPlayer === 'O' && gameState.gameActive) {
+                setTimeout(() => {
+                    const aiMove = getBestMove();
+                    if (aiMove !== -1) {
+                        makeMove(aiMove);
+                    }
+                }, 800);
+            }
+        }
+
+        // AI Logic
+        function getBestMove() {
+            const difficulty = document.getElementById('difficulty-select').value;
+            
+            switch (difficulty) {
+                case 'easy':
+                    return getRandomMove();
+                case 'medium':
+                    return Math.random() < 0.7 ? getOptimalMove() : getRandomMove();
+                case 'impossible':
+                    return getOptimalMove();
+                default:
+                    return getOptimalMove();
+            }
+        }
+
+        function getRandomMove() {
+            const availableMoves = gameState.board
+                .map((cell, index) => cell === '' ? index : null)
+                .filter(cell => cell !== null);
+            return availableMoves.length > 0 ? 
+                availableMoves[Math.floor(Math.random() * availableMoves.length)] : -1;
+        }
+
+        function getOptimalMove() {
+            // Check for winning move
+            for (let i = 0; i < 9; i++) {
+                if (gameState.board[i] === '') {
+                    gameState.board[i] = 'O';
+                    if (checkWinForPlayer('O')) {
+                        gameState.board[i] = '';
+                        return i;
+                    }
+                    gameState.board[i] = '';
+                }
+            }
+            
+            // Block opponent's winning move
+            for (let i = 0; i < 9; i++) {
+                if (gameState.board[i] === '') {
+                    gameState.board[i] = 'X';
+                    if (checkWinForPlayer('X')) {
+                        gameState.board[i] = '';
+                        return i;
+                    }
+                    gameState.board[i] = '';
+                }
+            }
+            
+            // Take center
+            if (gameState.board[4] === '') return 4;
+            
+            // Take corners
+            const corners = [0, 2, 6, 8];
+            for (let corner of corners) {
+                if (gameState.board[corner] === '') return corner;
+            }
+            
+            // Take edges
+            const edges = [1, 3, 5, 7];
+            for (let edge of edges) {
+                if (gameState.board[edge] === '') return edge;
+            }
+            
+            return -1;
+        }
+
+        function checkWinForPlayer(player) {
+            return winningCombos.some(combo => 
+                combo.every(index => gameState.board[index] === player)
+            );
+        }
+
+        function checkWin() {
+            for (let combo of winningCombos) {
+                const [a, b, c] = combo;
+                if (gameState.board[a] && 
+                    gameState.board[a] === gameState.board[b] && 
+                    gameState.board[a] === gameState.board[c]) {
+                    highlightWinningCells(combo);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkDraw() {
+            return gameState.board.every(cell => cell !== '');
+        }
+
+        function highlightWinningCells(combo) {
+            if (!gameState.settings.animations) return;
+            
+            combo.forEach(index => {
+                const cell = document.querySelectorAll('.cell')[index];
+                cell.classList.add('winning');
+            });
+        }
+
+        function handleGameEnd(result) {
+            gameState.gameActive = false;
+            gameState.totalGames++;
+            
+            if (result === 'win') {
+                gameState.scores[gameState.currentPlayer]++;
+                if (gameState.settings.sounds) sounds.win();
+                
+                let winnerName = gameState.currentPlayer;
+                if (gameState.gameMode === 'ai') {
+                    winnerName = gameState.currentPlayer === 'X' ? 'You' : 'AI';
+                }
+                
+                showModal(`${winnerName} Win${winnerName === 'You' ? '!' : 's!'}`, 
+                         `Congratulations! ${winnerName === 'You' ? 'You have' : winnerName + ' has'} won the game!`, '🎉');
+            } else {
+                gameState.scores.draws++;
+                if (gameState.settings.sounds) sounds.draw();
+                showModal("It's a Draw!", "Good game! It's a tie!", '🤝');
+            }
+            
+            updateScoreDisplay();
+            updateStatsDisplay();
+            saveGameState();
+        }
+
+        function handleOnlineGameEnd(result, winner = null) {
+            gameState.gameActive = false;
+            gameState.totalGames++;
+            
+            if (result === 'win') {
+                gameState.scores[winner]++;
+                if (gameState.settings.sounds) sounds.win();
+                
+                const isWinner = winner === gameState.online.playerSymbol;
+                const message = isWinner ? 'Congratulations! You won!' : `Player ${winner} wins!`;
+                showModal(isWinner ? 'You Win!' : 'You Lose!', message, isWinner ? '🎉' : '😔');
+            } else {
+                gameState.scores.draws++;
+                if (gameState.settings.sounds) sounds.draw();
+                showModal("It's a Draw!", "Good game! It's a tie!", '🤝');
+            }
+            
+            updateScoreDisplay();
+            updateStatsDisplay();
+            saveGameState();
+        }
+
+        function updateCell(index) {
+            const cell = document.querySelectorAll('.cell')[index];
+            cell.textContent = gameState.board[index];
+            cell.classList.add(gameState.board[index].toLowerCase());
+            
+            if (gameState.settings.animations) {
+                cell.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    cell.style.transform = 'scale(1)';
+                }, 150);
+            }
+        }
+
+        function updateBoard() {
+            gameState.board.forEach((value, index) => {
+                const cell = document.querySelectorAll('.cell')[index];
+                if (cell.textContent !== value) {
+                    cell.textContent = value;
+                    if (value) {
+                        cell.classList.add(value.toLowerCase());
+                        if (gameState.settings.animations) {
+                            cell.style.transform = 'scale(0.8)';
+                            setTimeout(() => {
+                                cell.style.transform = 'scale(1)';
+                            }, 150);
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateStatus() {
+            const status = document.getElementById('game-status');
+            if (gameState.gameActive) {
+                let currentPlayerName;
+                
+                if (gameState.gameMode === 'online') {
+                    if (gameState.currentPlayer === gameState.online.playerSymbol) {
+                        currentPlayerName = 'Your';
+                    } else {
+                        currentPlayerName = "Opponent's";
+                    }
+                } else if (gameState.gameMode === 'ai' && gameState.currentPlayer === 'O') {
+                    currentPlayerName = "AI's";
+                } else if (gameState.gameMode === 'ai' && gameState.currentPlayer === 'X') {
+                    currentPlayerName = "Your";
+                } else {
+                    currentPlayerName = `Player ${gameState.currentPlayer}'s`;
+                }
+                
+                status.innerHTML = `<span class="current-player">${currentPlayerName}</span> turn`;
+            }
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('score-x').textContent = gameState.scores.X;
+            document.getElementById('score-o').textContent = gameState.scores.O;
+            document.getElementById('score-draws').textContent = gameState.scores.draws;
+        }
+
+        function resetGame() {
+            if (gameState.gameMode === 'online' && gameState.online.connected) {
+                mockWS.resetGame(handleOnlineMessage);
+                return;
+            }
+            
+            gameState.board = ['', '', '', '', '', '', '', '', ''];
+            gameState.currentPlayer = 'X';
+            gameState.gameActive = true;
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.textContent = '';
+                cell.className = 'cell';
+                cell.style.transform = 'scale(1)';
+            });
+            
+            updateStatus();
+            playClickSound();
+        }
+
+        function resetScore() {
+            gameState.scores = { X: 0, O: 0, draws: 0 };
+            gameState.totalGames = 0;
+            updateScoreDisplay();
+            updateStatsDisplay();
+            saveGameState();
+            playClickSound();
+        }
+
+        function toggleSettings() {
+            // Settings are now on the menu screen
+            if (document.getElementById('menu-screen').classList.contains('active')) {
+                // Already on menu, maybe scroll to settings
+                document.querySelector('.settings-preview').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                goToMenu();
+            }
+            playClickSound();
+        }
+
+        function updateSetting(setting, value) {
+            gameState.settings[setting] = value;
+            
+            // Update all toggle switches
+            document.getElementById('menu-sound-toggle').checked = gameState.settings.sounds;
+            document.getElementById('menu-animation-toggle').checked = gameState.settings.animations;
+            document.getElementById('menu-particles-toggle').checked = gameState.settings.particles;
+            
+            saveGameState();
+            playClickSound();
+            
+            if (setting === 'particles') {
+                if (value && !window.particleInterval) {
+                    createParticles();
+                    window.particleInterval = setInterval(createParticles, 4000);
+                } else if (!value && window.particleInterval) {
+                    clearInterval(window.particleInterval);
+                    window.particleInterval = null;
+                    document.querySelectorAll('.particle').forEach(p => p.remove());
+                }
+            }
+        }
+
+        function showModal(title, message, icon = '✓') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-icon').textContent = icon;
+            document.getElementById('game-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('game-modal').style.display = 'none';
+        }
+
+        function playSound(frequency, duration, type = 'sine') {
+            if (!gameState.settings.sounds) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        function playClickSound() {
+            if (gameState.settings.sounds) sounds.click();
+        }
+
+        function createParticles() {
+            if (!gameState.settings.particles) return;
+            
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + 'vw';
+                    particle.style.background = Math.random() > 0.5 ? '#32d74b' : '#ffd60a';
+                    particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                    document.body.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.remove();
+                        }
+                    }, 5000);
+                }, i * 300);
+            }
+        }
+
+        function saveGameState() {
+            const dataToSave = {
+                scores: gameState.scores,
+                totalGames: gameState.totalGames,
+                settings: gameState.settings
+            };
+            window.gameData = dataToSave;
+        }
+
+        function loadGameState() {
+            const savedData = window.gameData;
+            if (savedData) {
+                gameState.scores = savedData.scores || { X: 0, O: 0, draws: 0 };
+                gameState.totalGames = savedData.totalGames || 0;
+                gameState.settings = savedData.settings || { sounds: true, animations: true, particles: true };
+                
+                // Update all toggle switches
+                document.getElementById('menu-sound-toggle').checked = gameState.settings.sounds;
+                document.getElementById('menu-animation-toggle').checked = gameState.settings.animations;
+                document.getElementById('menu-particles-toggle').checked = gameState.settings.particles;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('difficulty-select').addEventListener('change', function() {
+            gameState.difficulty = this.value;
+            playClickSound();
+        });
+
+        document.getElementById('room-code-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                joinRoom();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('game-screen').classList.contains('active')) {
+                const key = event.key;
+                if (key >= '1' && key <= '9') {
+                    const index = parseInt(key) - 1;
+                    makeMove(index);
+                } else if (key === 'r' || key === 'R') {
+                    resetGame();
+                } else if (key === 'Escape') {
+                    goToMenu();
+                }
+            }
+        });
+
+        // Initialize the game
+        init();
+    </script>
+</body>
+</html>
